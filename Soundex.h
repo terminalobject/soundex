@@ -12,31 +12,8 @@ class Soundex
 {
 public:
    std::string encode(const std::string& word) const {
-      return zeroPad(head(word) + encodedDigits(tail(word)));
-
+      return zeroPad(upperFront(head(word)) + encodedDigits(tail(word)));
   }
-
-private:
-   std::string head(const std::string& word) const {
-       return word.substr(0, 1);
-   }
-
-   std::string tail(const std::string& word) const {
-       return word.substr(1);
-   }
-   
-   std::string encodedDigits(const std::string& word) const {
-       std::string encoding;
-       for (auto letter: word) {
-           if (isComplete(encoding)) break;
-           encoding += encodedDigit(letter); 
-       }
-       return encoding;
-   }
-
-   bool isComplete (const std::string& encoding) const {
-       return encoding.length() == MaxCodeLength - 1;
-   }
 
    std::string encodedDigit(char letter) const {
       const std::unordered_map<char, std::string> encodings {
@@ -51,6 +28,41 @@ private:
       return it == encodings.end() ? "" : it->second;
    }
 
+
+private:
+   std::string head(const std::string& word) const {
+       return word.substr(0, 1);
+   }
+
+   std::string tail(const std::string& word) const {
+       return word.substr(1);
+   }
+   
+   std::string encodedDigits(const std::string& word) const {
+       std::string encoding;
+       for (auto letter: word) {
+           if (isComplete(encoding)) break;
+	   if (encodedDigit(letter) != lastDigit(encoding))
+		   
+              encoding += encodedDigit(letter); 
+       }
+       return encoding;
+   }
+   
+   std::string lastDigit(const std::string& encoding) const {
+      if (encoding.empty()) return "";
+      return std::string(1, encoding.back());
+   }
+
+   bool isComplete (const std::string& encoding) const {
+       return encoding.length() == MaxCodeLength - 1;
+   }
+
+   std::string upperFront(const std::string& string) const {
+      return std::string(1,
+	 std::toupper(static_cast<unsigned char>(string.front())));
+   }
+   
    std::string zeroPad(const std::string& word) const {
      auto zerosNeeded = MaxCodeLength - word.length();
      return word + std::string(zerosNeeded, '0');
