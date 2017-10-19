@@ -1,5 +1,4 @@
 #ifndef Soundex_h
-
 #define Soundex_h
 
 #include <string>
@@ -44,21 +43,31 @@ private:
        encodeTail(encoding, word);
        return encoding;
    }
-   void encodeHead(std::string& encoding, const std::string& word) {
+   void encodeHead(std::string& encoding, const std::string& word) const {
        encoding += encodedDigit(word.front());
    };
 
-   void encodeTail(std::string& encoding, const std::string& word) {
-       for (auto letter: tail(word)) {
-           if (isComplete(encoding)) break;
-	   auto digit = encodedDigit(letter);
-	   if (digit != NotADigit && digit != lastDigit(encoding))
-              encoding += digit;
+   void encodeTail(std::string& encoding, const std::string& word) const {
+       for (auto i = 1u; i < word.length(); i++) {
+           if (!isComplete(encoding))
+              encodeLetter(encoding, word[i], word[i-1]);
        }
    };
+
+   void encodeLetter(std::string& encoding, char letter, char lastLetter) const {
+	   auto digit = encodedDigit(letter);
+	   if (digit != NotADigit && (digit != lastDigit(encoding) || isVowel(lastLetter)))
+		   encoding += digit;
+   }
+
    std::string lastDigit(const std::string& encoding) const {
       if (encoding.empty()) return NotADigit; 
       return std::string(1, encoding.back());
+   }
+
+   bool isVowel(char letter) const {
+      return
+	 std::string("aeiouy").find(lower(letter) ) != std::string::npos;
    }
 
    bool isComplete (const std::string& encoding) const {
